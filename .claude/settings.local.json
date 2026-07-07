@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp /root/.claude/uploads/ef6b5e80-8640-582b-a50a-98bb1740ce73/aa952dae-eight_menus_logic_1.py /home/user/game-largescreen/eight_menus_logic.py && echo \"copied logic module\" && ls -la /home/user/game-largescreen/*.py)",
+      "Bash(cp /root/.claude/uploads/ef6b5e80-8640-582b-a50a-98bb1740ce73/26836680-eight_menus_logic_2.py /home/user/game-largescreen/eight_menus_logic.py && echo \"vendored v2\")"
+    ]
+  }
+}

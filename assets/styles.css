@@ -1,0 +1,454 @@
+/* ============================================================
+   8 Orders — styles
+   Designed for a 43" vertical touchscreen (1046 x 1860, ~9:16).
+   The #stage is a fixed-size canvas scaled to fit any viewport.
+   ============================================================ */
+
+:root {
+  --stage-w: 1046px;
+  --stage-h: 1860px;
+
+  /* palette pulled from the Figma design */
+  --purple-0: #1e0a3c;
+  --purple-1: #2d1066;
+  --purple-2: #0f0a1e;
+  --gold: #ffc40a;
+  --white: #f7f7f4;
+
+  --tile-bg: rgba(255, 255, 255, 0.10);
+  --tile-bg-strong: rgba(255, 255, 255, 0.16);
+  --tile-radius: 32px;
+
+  --track: #d9d9d9;
+  --timer-a: #22c55e; /* full / safe */
+  --timer-b: #eab308; /* warning */
+  --timer-c: #dc2626; /* danger */
+
+  --cta-a: #ff6b35;
+  --cta-b: #ff2d78;
+  --good: #22c55e;
+  --bad: #dc2626;
+
+  --font-title: "Just Another Hand", "Baloo Bhaijaan 2", cursive;
+  --font-head: "Baloo Bhaijaan 2", "Mitr", system-ui, sans-serif;
+  --font-body: "Mitr", -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #05030a;
+  color: var(--white);
+  font-family: var(--font-body);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* --- Scaled stage ------------------------------------------------------- */
+#viewport {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #241046 0%, #05030a 70%);
+}
+
+#stage {
+  position: relative;
+  width: var(--stage-w);
+  height: var(--stage-h);
+  /* --scale is set from JS to fit the viewport */
+  transform: scale(var(--scale, 1));
+  transform-origin: center center;
+  background: linear-gradient(180deg, #1e0a3c 0%, #2d1066 30%, #1e0a3c 60%, #0f0a1e 100%);
+  border-radius: 46px;
+  overflow: hidden;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6), inset 0 0 0 2px rgba(255,255,255,0.04);
+}
+
+/* decorative food confetti painted behind every screen */
+#stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 12% 8%,  rgba(255,107,53,0.16) 0 3px, transparent 4px),
+    radial-gradient(circle at 88% 6%,  rgba(255,45,120,0.16) 0 4px, transparent 5px),
+    radial-gradient(circle at 78% 22%, rgba(255,196,10,0.14) 0 3px, transparent 4px),
+    radial-gradient(circle at 20% 30%, rgba(120,200,255,0.10) 0 4px, transparent 5px),
+    radial-gradient(circle at 50% 92%, rgba(255,107,53,0.10) 0 5px, transparent 6px),
+    radial-gradient(circle at 90% 80%, rgba(255,45,120,0.10) 0 3px, transparent 4px),
+    radial-gradient(circle at 8% 70%,  rgba(255,196,10,0.10) 0 3px, transparent 4px);
+  pointer-events: none;
+}
+
+#screen { position: absolute; inset: 0; }
+
+/* --- Generic screen scaffold ------------------------------------------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 150px 57px 70px; /* clear the fixed brand + sound chrome up top */
+  animation: fade .35s ease both;
+}
+/* screens that vertically center their own content don't need the header gap */
+.screen.center-col { padding-top: 70px; }
+@keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* Brand chip (top-left) — mirrors the Figma header */
+.brand {
+  position: absolute;
+  top: 44px;
+  left: 60px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  opacity: 0.92;
+}
+.brand .logo {
+  width: 66px; height: 66px; border-radius: 18px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, #ff6b35, #ff2d78);
+  font-size: 34px; box-shadow: 0 6px 18px rgba(255,45,120,0.35);
+}
+.brand .txt { line-height: 1.15; }
+.brand .txt b { font-size: 22px; letter-spacing: .2px; display: block; }
+.brand .txt small { font-size: 13px; opacity: .8; display: block; max-width: 320px; }
+.brand .txt hr { border: none; border-top: 1px solid rgba(255,255,255,.35); margin: 3px 0; }
+
+/* Sound toggle (top-right) */
+.sound-toggle {
+  position: absolute;
+  top: 48px; right: 56px;
+  width: 74px; height: 74px; border-radius: 22px;
+  border: none; cursor: pointer;
+  background: var(--tile-bg);
+  color: var(--white);
+  font-size: 34px; line-height: 1;
+  display: grid; place-items: center;
+  backdrop-filter: blur(4px);
+}
+.sound-toggle:active { transform: scale(.94); }
+
+/* --- Typography --------------------------------------------------------- */
+.logo-wordmark {
+  text-align: center;
+  line-height: .8;
+  margin-top: 40px;
+}
+.logo-wordmark .eight {
+  font-family: var(--font-title);
+  font-size: 460px;
+  background: linear-gradient(180deg, #ffd700 0%, #ff6b35 52%, #ff2d78 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  transform: rotate(-5deg);
+  display: inline-block;
+  filter: drop-shadow(0 10px 30px rgba(255,45,120,.35));
+}
+.logo-wordmark .orders {
+  font-family: var(--font-title);
+  font-size: 270px;
+  background: linear-gradient(180deg, #ffd700 0%, #ff6b35 52%, #ff2d78 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  display: block;
+  margin-top: -70px;
+}
+.tagline {
+  font-family: var(--font-head);
+  color: var(--gold);
+  font-size: 64px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 8px;
+  text-shadow: 0 3px 0 rgba(0,0,0,.2);
+}
+
+.headline {
+  font-family: var(--font-head);
+  font-weight: 700;
+  text-align: center;
+  font-size: 108px;
+  line-height: 1;
+  margin: 0;
+}
+.subhead {
+  font-family: var(--font-head);
+  font-weight: 600;
+  text-align: center;
+  font-size: 58px;
+  line-height: 1.05;
+  margin: 10px 0 0;
+}
+.subhead .accent { color: var(--gold); }
+
+/* --- Buttons ------------------------------------------------------------ */
+.cta {
+  border: none; cursor: pointer;
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: #fff;
+  font-size: 64px;
+  letter-spacing: 2px;
+  padding: 30px 90px;
+  border-radius: 60px;
+  background: linear-gradient(180deg, var(--cta-a), var(--cta-b));
+  box-shadow: 0 16px 40px rgba(255,45,120,.4), inset 0 2px 0 rgba(255,255,255,.35);
+  transition: transform .12s ease, filter .12s ease;
+}
+.cta:active { transform: translateY(4px) scale(.98); filter: brightness(1.05); }
+.cta.secondary {
+  background: var(--tile-bg-strong);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.18);
+}
+.cta.big { font-size: 78px; padding: 38px 120px; }
+
+.hint {
+  font-family: var(--font-body);
+  font-size: 34px;
+  opacity: .8;
+  text-align: center;
+}
+
+/* --- Plates & tiles ----------------------------------------------------- */
+.plate-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 35px;
+  width: 100%;
+}
+.plate-grid.rows-2 { grid-template-rows: repeat(2, 1fr); }
+
+.tile {
+  aspect-ratio: 1 / 1;
+  background: var(--tile-bg);
+  border-radius: var(--tile-radius);
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.tile .plate {
+  width: 78%; height: 78%;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #ffffff 0%, #f3ecdf 62%, #d8cbb2 100%);
+  box-shadow: inset 0 -8px 20px rgba(0,0,0,.12), inset 0 0 0 8px rgba(255,255,255,.7), 0 8px 18px rgba(0,0,0,.25);
+  font-size: 96px;
+  line-height: 1;
+}
+
+/* real dish photo fills the plate; emoji fallback shows if the img is dropped */
+.plate .dish {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.plate .dish-emoji { line-height: 1; }
+.tile.empty .plate { visibility: hidden; }
+
+/* Beat highlight: all dishes stay visible; each lights up on its beat with a
+   neon outline, then keeps a soft outline + its order number. */
+.tile { transition: box-shadow .16s ease, transform .16s ease; }
+.tile .idx { opacity: 0; transition: opacity .2s ease; }        /* number hidden until lit */
+.tile.beat-seen .idx, .tile.beat-on .idx { opacity: 1; }
+
+.tile.beat-on {
+  transform: scale(1.07);
+  z-index: 3;
+  box-shadow:
+    0 0 0 6px #ffe14d,
+    0 0 26px 6px rgba(255,225,77,.95),
+    0 0 60px 10px rgba(255,107,53,.7),
+    inset 0 0 22px rgba(255,225,77,.5);
+  animation: neonpulse .42s ease;
+}
+.tile.beat-seen {
+  box-shadow:
+    0 0 0 4px rgba(255,196,10,.6),
+    0 0 16px rgba(255,196,10,.4);
+}
+@keyframes neonpulse {
+  0%   { box-shadow: 0 0 0 2px rgba(255,225,77,.5), 0 0 10px rgba(255,225,77,.4); }
+  45%  { box-shadow: 0 0 0 8px #ffe14d, 0 0 40px 10px rgba(255,225,77,1), 0 0 80px 16px rgba(255,107,53,.8); }
+  100% { box-shadow: 0 0 0 6px #ffe14d, 0 0 26px 6px rgba(255,225,77,.9); }
+}
+.tile .qmark {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 110px;
+  color: rgba(255,255,255,.55);
+}
+.tile.filled .qmark { display: none; }
+.tile.pop { animation: pop .28s ease; }
+@keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
+.tile.correct { box-shadow: 0 0 0 6px var(--good), 0 0 30px rgba(34,197,94,.55); }
+.tile.correct::after {
+  content: "✓"; position: absolute; top: 8px; right: 14px;
+  color: var(--good); font-size: 54px; font-weight: 900;
+  text-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+.tile.wrong { box-shadow: 0 0 0 6px var(--bad), 0 0 30px rgba(220,38,38,.55); animation: shake .4s; }
+.tile.wrong::after {
+  content: "✕"; position: absolute; inset: 0; display: grid; place-items: center;
+  color: var(--bad); font-size: 150px; font-weight: 900;
+  text-shadow: 0 4px 12px rgba(0,0,0,.5);
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-14px); }
+  40% { transform: translateX(14px); }
+  60% { transform: translateX(-10px); }
+  80% { transform: translateX(10px); }
+}
+
+/* index badge on memorize plates (order number) */
+.tile .idx {
+  position: absolute; top: 10px; left: 14px;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--cta-a), var(--cta-b));
+  display: grid; place-items: center;
+  font-family: var(--font-head); font-weight: 800; font-size: 30px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.35);
+}
+
+/* --- Palette (recall choices) ------------------------------------------ */
+.palette {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+  width: 100%;
+}
+.choice {
+  aspect-ratio: 1 / 1;
+  border: none; cursor: pointer;
+  background: var(--tile-bg-strong);
+  border-radius: var(--tile-radius);
+  display: grid; place-items: center;
+  transition: transform .1s ease, filter .1s ease;
+}
+.choice:active { transform: scale(.93); filter: brightness(1.12); }
+.choice .plate {
+  width: 82%; height: 82%;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #ffffff 0%, #f3ecdf 62%, #d8cbb2 100%);
+  box-shadow: inset 0 -6px 16px rgba(0,0,0,.12), inset 0 0 0 6px rgba(255,255,255,.7), 0 6px 14px rgba(0,0,0,.25);
+  font-size: 84px;
+  line-height: 1;
+}
+.choice .name {
+  position: absolute; bottom: 8px; left: 0; right: 0;
+  text-align: center; font-size: 24px; opacity: .0;
+}
+
+/* --- Timer bar ---------------------------------------------------------- */
+.timerbar {
+  width: 100%;
+  height: 42px;
+  border-radius: 40px;
+  background: var(--track);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.25);
+}
+.timerbar > .fill {
+  height: 100%;
+  border-radius: 40px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--timer-c) 0%, var(--timer-b) 45%, var(--timer-a) 100%);
+  transform-origin: left center;
+  transition: transform .1s linear;
+}
+.timerbar > .note {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  right: 16px; font-size: 30px;
+}
+
+/* --- Status row (lives / round / score) -------------------------------- */
+.statusrow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 40px;
+}
+.lives { letter-spacing: 4px; font-size: 44px; }
+.chip {
+  background: var(--tile-bg);
+  padding: 10px 30px; border-radius: 40px; font-size: 36px;
+}
+
+/* --- Countdown ---------------------------------------------------------- */
+.countdown-num {
+  font-family: var(--font-title);
+  font-size: 620px;
+  line-height: 1;
+  background: linear-gradient(180deg, #ffd700, #ff6b35, #ff2d78);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: cd .9s ease both;
+}
+@keyframes cd {
+  0% { transform: scale(.3); opacity: 0; }
+  40% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(.85); opacity: 0; }
+}
+
+/* --- Feedback emoji ----------------------------------------------------- */
+.emoji-hero { font-size: 300px; line-height: 1; animation: pop .4s ease; filter: drop-shadow(0 12px 30px rgba(0,0,0,.4)); }
+
+/* --- Result ------------------------------------------------------------- */
+.score-big {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 240px;
+  line-height: 1;
+  display: flex; align-items: baseline; gap: 20px;
+}
+.score-big .num { color: var(--gold); }
+.score-big .den { font-size: 120px; opacity: .7; }
+.result-card {
+  width: 100%;
+  background: rgba(255,255,255,.06);
+  border-radius: 46px;
+  padding: 46px 54px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.08);
+}
+.stat-row { display: flex; justify-content: space-between; font-size: 44px; padding: 14px 0; }
+.stat-row + .stat-row { border-top: 1px solid rgba(255,255,255,.1); }
+.stat-row b { color: var(--gold); }
+
+.qr {
+  width: 220px; height: 220px; border-radius: 24px; background: #fff;
+  display: grid; place-items: center; padding: 14px;
+}
+.qr svg { width: 100%; height: 100%; }
+
+/* utility spacing */
+.grow { flex: 1 1 auto; }
+.mt-s { margin-top: 24px; }
+.mt-m { margin-top: 44px; }
+.mt-l { margin-top: 80px; }
+.gap-col { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+.center-col { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+.row { display: flex; align-items: center; gap: 28px; }
+.pulse { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
