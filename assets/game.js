@@ -26,10 +26,15 @@
   }
 
   var screenEl = document.getElementById("screen");
+  var stageShellEl = document.getElementById("stage-shell");
   var stageEl = document.getElementById("stage");
 
   var MAX_SCORE = 50;
   var START_LIVES = 2;
+  var DESIGN_WIDTH = 1046;
+  var DESIGN_HEIGHT = 1860;
+  var SAFE_PAD = 24;
+  var DEBUG_STAGE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
   // ---- runtime state ----
   var state = {
@@ -527,12 +532,30 @@
   function fitStage() {
     var vw = window.innerWidth;
     var vh = window.innerHeight;
-    var pad = 24;
-    var scale = Math.min((vw - pad) / 1046, (vh - pad) / 1860);
-    stageEl.style.setProperty("--scale", scale);
+    var availableWidth = Math.max(1, vw - SAFE_PAD * 2);
+    var availableHeight = Math.max(1, vh - SAFE_PAD * 2);
+    var scale = Math.min(availableWidth / DESIGN_WIDTH, availableHeight / DESIGN_HEIGHT);
+    scale = Math.max(0.1, scale);
+
+    stageShellEl.style.setProperty("--stage-scale", scale);
+
+    if (DEBUG_STAGE) {
+      var rect = stageEl.getBoundingClientRect();
+      console.debug(
+        "[stage] viewport=" + vw + "x" + vh +
+        " design=" + DESIGN_WIDTH + "x" + DESIGN_HEIGHT +
+        " scale=" + scale.toFixed(3) +
+        " rect=" + rect.width.toFixed(1) + "x" + rect.height.toFixed(1) +
+        " @" + rect.left.toFixed(1) + "," + rect.top.toFixed(1)
+      );
+    }
   }
   window.addEventListener("resize", fitStage);
   window.addEventListener("orientationchange", fitStage);
+  window.addEventListener("load", fitStage);
+  if (document.fonts && typeof document.fonts.addEventListener === "function") {
+    document.fonts.addEventListener("loadingdone", fitStage);
+  }
 
   // ---- boot ----
   window.Music.init(window.BEAT.src);

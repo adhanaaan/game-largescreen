@@ -7,6 +7,8 @@
 :root {
   --stage-w: 1046px;
   --stage-h: 1860px;
+  --safe-pad: 24px;
+  --stage-scale: 1;
 
   /* palette pulled from the Figma design */
   --purple-0: #1e0a3c;
@@ -38,7 +40,10 @@
 
 html, body {
   margin: 0;
+  width: 100%;
+  min-width: 100%;
   height: 100%;
+  min-height: 100%;
   background: #05030a;
   color: var(--white);
   font-family: var(--font-body);
@@ -47,24 +52,43 @@ html, body {
   -webkit-user-select: none;
   touch-action: manipulation;
 }
+body { position: relative; }
 
 /* --- Scaled stage ------------------------------------------------------- */
 #viewport {
   position: fixed;
   inset: 0;
-  display: grid;
-  place-items: center;
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--safe-pad);
+  overflow: hidden;
   background:
     radial-gradient(120% 80% at 50% -10%, #241046 0%, #05030a 70%);
+}
+
+#stage-shell {
+  position: relative;
+  width: calc(var(--stage-w) * var(--stage-scale, 1));
+  height: calc(var(--stage-h) * var(--stage-scale, 1));
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
 }
 
 #stage {
   position: relative;
   width: var(--stage-w);
   height: var(--stage-h);
-  /* --scale is set from JS to fit the viewport */
-  transform: scale(var(--scale, 1));
+  flex: 0 0 auto;
+  /* --stage-scale is set from JS to fit the viewport */
+  transform: scale(var(--stage-scale, 1));
   transform-origin: center center;
+  will-change: transform;
   background: linear-gradient(180deg, #1e0a3c 0%, #2d1066 30%, #1e0a3c 60%, #0f0a1e 100%);
   border-radius: 46px;
   overflow: hidden;
